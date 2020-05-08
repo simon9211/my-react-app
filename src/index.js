@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+import { createStore } from 'redux';
+
 // class Square extends React.Component {
 //
 //     constructor(props) {
@@ -355,10 +357,10 @@ const PRODUCTS = [
     {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
 ];
 
-ReactDOM.render(
-    <FilterableProductTable products={PRODUCTS} />,
-    document.getElementById('root')
-);
+// ReactDOM.render(
+//     <FilterableProductTable products={PRODUCTS} />,
+//     document.getElementById('root')
+// );
 
 // ReactDOM.render(
 //     <div>
@@ -367,3 +369,36 @@ ReactDOM.render(
 //     </div>,
 //     document.getElementById('root')
 // );
+
+
+const Counter = ({ value, onIncrement, onDecrement }) => (
+    <div>
+        <h1>{value}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={onDecrement}>-</button>
+    </div>
+);
+
+const reducer = (state = 0, action) => {
+    switch (action.type) {
+        case 'INCREMENT': return state + action.val;
+        case 'DECREMENT': return state - action.val;
+        default: return state;
+    }
+};
+
+const store = createStore(reducer);
+
+const render = () => {
+    ReactDOM.render(
+        <Counter
+            value={store.getState()}
+            onIncrement={() => store.dispatch({type: 'INCREMENT', val: 2})}
+            onDecrement={() => store.dispatch({type: 'DECREMENT', val: 1})}
+        />,
+        document.getElementById('root')
+    );
+};
+
+render();
+store.subscribe(render);

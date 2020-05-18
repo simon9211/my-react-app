@@ -2,7 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-import { createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
+import createSagaMiddleware from 'redux-saga'
+import rootSaga from './sagas'
+
+// import { createLogger } from 'redux-logger'
+// import { Router, Route, hashHistory } from 'react-router'
 
 // class Square extends React.Component {
 //
@@ -206,7 +211,7 @@ class ProductRow extends React.Component {
     render() {
         const product = this.props.product;
         const name = product.stocked ?
-            <td>{product.name} </td>:
+            <td>{product.name} </td> :
             <td style={{color: 'red'}}>{product.name}</td>;
 
         return (
@@ -237,7 +242,7 @@ class ProductTable extends React.Component {
                 rows.push(
                     <ProductCategoryRow
                         category={product.category}
-                        key={product.category} />
+                        key={product.category}/>
                 );
             }
             rows.push(
@@ -316,6 +321,14 @@ class FilterableProductTable extends React.Component {
         this.handleInStockChange = this.handleInStockChange.bind(this);
     }
 
+    componentDidMount() {
+
+    }
+
+    componentWillMount() {
+
+    }
+
     handleFilterTextChange(filterText) {
         this.setState({
             filterText: filterText
@@ -370,32 +383,141 @@ const PRODUCTS = [
 //     document.getElementById('root')
 // );
 
+// ReactDOM.render(
+//     <Router history={hashHistory}>
+//         <Route path='/' component={FilterableProductTable} />
+//     </Router>,
+//     document.getElementById('root')
+// );
 
-const Counter = ({ value, onIncrement, onDecrement }) => (
-    <div>
-        <h1>{value}</h1>
-        <button onClick={onIncrement}>+</button>
-        <button onClick={onDecrement}>-</button>
-    </div>
-);
+
+// const Counter = ({value, onIncrement, onDecrement}) => (
+//     <div>
+//         <h1>{value}</h1>
+//         <button onClick={onIncrement}>+</button>
+//         <button onClick={onDecrement}>-</button>
+//     </div>
+// );
+
+class Counter extends React.Component {
+
+    constructor() {
+        super();
+        this.state = {
+            val: 0
+        }
+    }
+
+    componentDidMount() {
+        this.setState(
+            {val: this.state.val + 1}
+        )
+
+        console.log(this.state.val)
+
+        this.setState(
+            {val: this.state.val + 3}
+        )
+        console.log(this.state.val)
+
+        this.setState(
+            {val: this.state.val + 1}
+        )
+        console.log(this.state.val)
+
+        this.setState(
+            {val: this.state.val + 2}
+        )
+        console.log(this.state.val)
+
+        this.setState(
+            {val: this.state.val + 1}
+        )
+        console.log(this.state.val)
+
+        setTimeout(() => {
+            this.setState(
+                {val: this.state.val + 1}
+            )
+            console.log(this.state.val)
+        }, 0)
+
+        setTimeout(() => {
+            this.setState(
+                {val: this.state.val + 1}
+            )
+            console.log(this.state.val)
+        }, 0)
+    }
+
+    render() {
+        const { value, onIncrement, onDecrement } = this.props;
+        return (
+            <div>
+                <h1>{value}</h1>
+                <button onClick={onIncrement}>+</button>
+                <button onClick={onDecrement}>-</button>
+                <button onClick={this.clicked}>dispatch</button>
+            </div>);
+    }
+
+    clicked() {
+        console.log('clocked')
+    }
+}
 
 const reducer = (state = 0, action) => {
     switch (action.type) {
-        case 'INCREMENT': return state + action.val;
-        case 'DECREMENT': return state - action.val;
-        default: return state;
+        case 'INCREMENT':
+            return state + action.val;
+        case 'DECREMENT':
+            return state - action.val;
+        default:
+            return state;
     }
 };
 
-const store = createStore(reducer);
+
+const counterReducer  = (state = 0, action) => {
+    switch (action.type) {
+        case 'INCREMENT':
+            return state + 1
+        case 'INCREMENT_IF_ODD':
+            return (state % 2 !== 0) ? state + 1 : state
+        case 'DECREMENT':
+            return state - 1
+        default:
+            return state
+    }
+}
+
+
+// const logger = createLogger();
+const sagaMiddleware = createSagaMiddleware()
+
+
+const store = createStore(
+    reducer,
+    applyMiddleware(sagaMiddleware)
+);
+
+sagaMiddleware.run(rootSaga)
 
 const render = () => {
     ReactDOM.render(
-        <Counter
-            value={store.getState()}
-            onIncrement={() => store.dispatch({type: 'INCREMENT', val: 2})}
-            onDecrement={() => store.dispatch({type: 'DECREMENT', val: 1})}
-        />,
+        <div>
+            {/*<Counter*/}
+                {/*value={store.getState()}*/}
+                {/*onIncrement={() => store.dispatch({type: 'INCREMENT', val: 2})}*/}
+                {/*onDecrement={() => store.dispatch({type: 'DECREMENT', val: 1})}*/}
+            {/*/>*/}
+            <Counter
+                value={store.getState()}
+                onIncrement={() => store.dispatch({type: 'INCREMENT_IF_ODD', val: 2})}
+                onDecrement={() => store.dispatch({type: 'INCREMENT_ASYNC', val: 1})}
+            />
+        </div>,
+
         document.getElementById('root')
     );
 };

@@ -5,6 +5,7 @@ import './index.css';
 import { applyMiddleware, createStore } from 'redux';
 import createSagaMiddleware from 'redux-saga'
 import rootSaga from './sagas'
+import { DatePicker } from 'antd';
 
 // import { createLogger } from 'redux-logger'
 // import { Router, Route, hashHistory } from 'react-router'
@@ -502,6 +503,9 @@ const store = createStore(
 );
 
 sagaMiddleware.run(rootSaga)
+function onChange(date, dateString) {
+    console.log(date, dateString);
+}
 
 const render = () => {
     ReactDOM.render(
@@ -516,6 +520,7 @@ const render = () => {
                 onIncrement={() => store.dispatch({type: 'INCREMENT_IF_ODD', val: 2})}
                 onDecrement={() => store.dispatch({type: 'INCREMENT_ASYNC', val: 1})}
             />
+            <DatePicker onChange={onChange} />
         </div>,
 
         document.getElementById('root')
